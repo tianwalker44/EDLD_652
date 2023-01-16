@@ -1,0 +1,12 @@
+---
+title: "Test"
+author: "Tian Walker"
+date: "2023-01-16"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Repo for class is created. This is a test to make sure that pushing to Git Hub is working! 
