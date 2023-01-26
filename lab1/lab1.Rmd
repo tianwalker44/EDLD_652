@@ -1,0 +1,199 @@
+---
+title: "Lab 1"
+author: "Student Name"
+date: "YYYY-MM-DD"
+output:
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Data
+
+We'll work with the [#tidytuesday](https://twitter.com/search?q=%23tidytuesday&src=tyah)  data for 2019, specifically the [#rstats](https://twitter.com/search?q=%23rstats&src=typd) dataset, containing nearly 500,000 tweets over a little more than a decade using that hashtag. 
+
+The data is in under Dataset tab of Week 3 module on Canvas.
+
+You can import the dataset using the code below.
+
+```{r}
+library(tidyverse)
+library(tidytext)
+```
+
+
+```{r include=FALSE}
+d <- rio::import(here::here("lab1", "rstats_tweets.rds"),
+                 setclass = "tbl_df") 
+
+#View(d)
+```
+
+If you need help with processing text data, please revisit the notebook introduced in Week 1.
+
+https://www.kaggle.com/code/uocoeeds/introduction-to-textual-data
+
+### Histogram and Density plots
+
+1. Create a histogram the column `display_text_width` using the `ggplot2` package and `geom_histogram()` function. Try at least four different numbers of bins (e.g., 20, 30, 40, 50) by manipulating the `bins=` argument. Select what you think best represents the data for each. Provide a brief justification for your decision. For all plots you created, change the default background color from grayish to white.
+
+```{r, echo=F, eval=F}
+
+d %>% 
+  select(display_text_width) %>% 
+  view()
+
+d %>% 
+  ggplot(aes(x = display_text_width))+ geom_histogram() + theme_bw()
+         
+
+# p <- ggplot(d, aes(x=display_text_width)) + 
+#   geom_histogram()
+
+```
+
+```{r}
+d %>% 
+  ggplot(aes(x = display_text_width))+ geom_histogram(bins = 20, color = "black") + theme_bw()
+
+d %>% 
+  ggplot(aes(x = display_text_width))+ geom_histogram(bins = 30, color = "black") + theme_bw()
+
+d %>% 
+  ggplot(aes(x = display_text_width))+ geom_histogram(bins = 40, color = "black") + theme_bw()
+         
+d %>% 
+  ggplot(aes(x = display_text_width))+ geom_histogram(bins = 50, color = "black") + theme_bw()
+```
+
+2. Create a density plot for the column `display_text_width` using the `ggplot2` package and `geom_density()` function. Fill the inside of density plot with a color using the `fill=` argument. Try at least four different numbers of smoothing badwith (e.g., 0.2, 1.5, 3, 5) by manipulating the `bw=` argument. Select what you think best represents the data for each. Provide a brief justification for your decision.
+
+
+```{r, echo=TRUE, eval=TRUE}
+d %>% 
+  ggplot(aes(x = display_text_width))+ geom_density(fill = "deeppink4") + theme_bw()
+```
+
+```{r eval=FALSE, include=FALSE}
+library(stringr)
+
+a <- LETTERS
+remove_words<- c('Z', 'G', 'K', 'M', 'S')
+
+str_extract(string = a, 
+            pattern = remove_words)
+
+str_extract(string = a, 
+            pattern = 'K', 
+            simplify = TRUE)
+```
+
+```{r eval=FALSE, include=FALSE}
+dplyr::filter(.)
+
+a <- data.frame(letters = LETTERS)
+
+grepl
+```
+
+
+```{r eval=FALSE, include=FALSE}
+
+?setdiff
+d <- setdiff( x = a$letters, 
+         y = remove_words)
+
+a %>% 
+  setdiff()
+
+a_reduced <- a[!a$letters %in% remove_words,]
+
+```
+
+### Barplot
+
+3. Using the information `text` column, create the following figure of the 15 most common words represented in these posts by using the `ggplot2()` package and `geom_col()` function. Remove the stop words, and also exclude the words such as 't.co','https','http','rt','rstats'.
+
+```{r eval=FALSE, include=FALSE}
+
+
+View(d)
+
+d$text %>% 
+  anti_join(stop_words) %>% 
+  count(word, sort = TRUE) %>% 
+  mutate(word = reorder(word, n)) %>% # make y-axis ordered by n
+  slice(1:15) %>% # select only the first 15 rows
+  ggplot(aes(n, word)) +
+    geom_col(fill = "cornflowerblue")
+
+
+d <- tibble(
+  paragraph = seq_along(text),
+  description = text
+)
+
+text
+
+view(d)
+```
+
+```{r}
+
+# eugene_df <- tibble(
+#   paragraph = seq_along(d$text),
+#   description = d$text
+# )
+# 
+# ?seq_along
+# 
+# eugene_df
+
+names(d)
+dat <- d %>% 
+  select(user_id, text)
+
+dat <- dat %>% 
+unnest_tokens(word, text)
+
+dat
+```
+
+```{r}
+#dat_reduced <- dat[!dat$text %in% stop_words,]
+
+
+dat %>% 
+anti_join(stop_words) %>% 
+filter(word != "t.co",word !="https",word != "http",word != "rt", word !="rstats") %>% 
+count(word, sort = TRUE) %>% 
+  mutate(word = reorder(word, n)) %>% # make y-axis ordered by n
+  slice(1:15) %>% # select only the first 15 rows
+  ggplot(aes(n, word)) +
+  theme_minimal() +
+    geom_col(fill = "cornflowerblue")+ theme(panel.grid.major.x = element_line(color = "grey",size = 0.25, linetype = 1), panel.grid = element_blank()) + labs( x = "Count", y = "Word", Title = "Word frequencies in posts", subtitle = "Top 15 wordss displayed", caption = "Data from Mike Kearny, distributed from #tidytuesday")
+                                          
+  
+  
+  
+  #theme(panel.grid.major = element_line(color = "black",
+                                        # size = 0.5,
+                                        # linetype = 1)) 
+```
+
+
+
+```{r,echo=TRUE,eval=TRUE}
+
+```
+
+
+
+4. Style the plot so it (mostly) matches the below. It does not need to be exact, but it should be close.
+
+```{r, echo=TRUE,eval=TRUE}
+
+```
+

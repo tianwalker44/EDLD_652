@@ -1,0 +1,83 @@
+---
+title: "week3_class2"
+author: "Tian Walker"
+date: "2023-01-23"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+make sure that graph shows information in a graphical way
+example 1: scale distortion
+example 2: unnecessary 3d plots
+example 3: tweet from the White House (exaggerated difference between 75% and 82%)
+
+* note that the y axis does not start at 0, but rather at 50%
+
+https://dl.acm.org/doi/10.1145/2702123.2702608
+
+aspect ratio is changed 
+how much larger (on a five point likert scale)
+
+They look at whether there are any individual, personal factors that can explain the difference
+
+one way ANOVA - including gender, social status, how familiar they are with the charts
+If they have a trained eye/familiarity with the chart, or higher visual ability, the are less likely to be affected by these distortions
+
+From Tufte, Principals for Graphical Integrity
+Lie factor- representation of numbers as physically measured on the graphic itself should be directly proportional to the values in the data (1:1)
+
+**clear, detailed, and thorough labeling**
+
+plot must be self-explanatory
+
+plot should make sense independent from any text
+
+In academia, the hope is that the prevalence of graphical non-integrity is low.
+As a reviewer, the professor does not prioritize scrutinizing plots and assumes people are not distorting plots intentionally
+
+Could be an R package (final project idea)
+Take plot, process it as an image and then compare it with the actual sizze of the data
+
+You want to **discuss** the plot in your text, not describe
+
+**show data variation, not design variation**
+
+dimensions depicted should not exceed the number of dimensions in the data
+
+graphics must not quote data out of context
+
+
+sometimes you need more than a plot... an infographic
+
+when you create a dashboard, you can design it in a way to give people contextual information behind your plots
+
+
+### **Gestault principles**
+
+Make it easier for viewers to "see" and interpret data in a visualization
+
+prioritize colors to differentiate elements, over shapes
+
+many journals only in black and white
+
+
+objects that are close to each other tend to be perceived as natural groups
+
+
+Data Ink Ratio
+
+DIR = data-ink/total ink used to print the graphic
+
+all ink in a graphic should present new information
+non-data ink, can often be erased
+
+
+
+
+
+
+
+
