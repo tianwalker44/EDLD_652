@@ -225,7 +225,7 @@ count(word, sort = TRUE) %>%
   slice(1:15) %>% # select only the first 15 rows
   ggplot(aes(n, word)) +
   theme_minimal() +
-    geom_col(fill = "cornflowerblue")+ theme(panel.grid.major.x = element_line(color = "grey",size = 0.25, linetype = 1), panel.grid = element_blank()) + labs( x = "Count", y = "Word", Title = "Word frequencies in posts", subtitle = "Top 15 wordss displayed", caption = "Data from Mike Kearny, distributed from #tidytuesday")
+    geom_col(fill = "cornflowerblue")+ theme(panel.grid.major.x = element_line(color = "grey",size = 0.25, linetype = 1), panel.grid = element_blank()) + labs( x = "Count", y = "Word", Title = "Word frequencies in posts", subtitle = "Top 15 words displayed", caption = "Data from Mike Kearny, distributed from #tidytuesday")
 
                                           
 ```
