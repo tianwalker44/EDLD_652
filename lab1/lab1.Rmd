@@ -1,7 +1,7 @@
 ---
 title: "Lab 1"
-author: "Student Name"
-date: "YYYY-MM-DD"
+author: "Tian Walker"
+date: "2023-01-29"
 output:
   pdf_document: default
 ---
@@ -18,9 +18,10 @@ The data is in under Dataset tab of Week 3 module on Canvas.
 
 You can import the dataset using the code below.
 
-```{r}
+```{r include=FALSE}
 library(tidyverse)
 library(tidytext)
+
 ```
 
 
@@ -29,6 +30,7 @@ d <- rio::import(here::here("lab1", "rstats_tweets.rds"),
                  setclass = "tbl_df") 
 
 #View(d)
+  
 ```
 
 If you need help with processing text data, please revisit the notebook introduced in Week 1.
@@ -67,14 +69,48 @@ d %>%
 d %>% 
   ggplot(aes(x = display_text_width))+ geom_histogram(bins = 50, color = "black") + theme_bw()
 ```
+It is difficult to decide which bin number is the best. It would be helpful to have more details about the units of display text width and what they mean. The bin width changes what the graph communicates in terms of the variety of display widths it shows. Ultimately, I think that second bar chart with 30 bins that lumps more together and creates a y-axis of 80,000 instead of 40,000 offers the best "at-a-glance" picture of this variable. I think it is a nice middle ground between 20 bins and 40 or 50. 
+
 
 2. Create a density plot for the column `display_text_width` using the `ggplot2` package and `geom_density()` function. Fill the inside of density plot with a color using the `fill=` argument. Try at least four different numbers of smoothing badwith (e.g., 0.2, 1.5, 3, 5) by manipulating the `bw=` argument. Select what you think best represents the data for each. Provide a brief justification for your decision.
 
 
 ```{r, echo=TRUE, eval=TRUE}
 d %>% 
-  ggplot(aes(x = display_text_width))+ geom_density(fill = "deeppink4") + theme_bw()
+  ggplot(aes(x = display_text_width))+ geom_density(bw = 0.2, fill = "deeppink4") + theme_bw()
 ```
+
+```{r}
+d %>% 
+  ggplot(aes(x = display_text_width))+ geom_density(bw = 1, fill = "maroon2") + theme_bw()
+
+```
+```{r}
+d %>% 
+  ggplot(aes(x = display_text_width))+ geom_density(bw = 5, fill = "slateblue") + theme_bw()
+
+```
+
+```{r}
+d %>% 
+  ggplot(aes(x = display_text_width))+ geom_density(bw = .5, fill = "salmon") + theme_bw()
+
+```
+
+```{r}
+d %>% 
+  ggplot(aes(x = display_text_width))+ geom_density(bw = 0.7, fill = "rosybrown2") + theme_bw()
+
+```
+
+```{r}
+d %>% 
+  ggplot(aes(x = display_text_width))+ geom_density(bw = 10, fill = "darkcyan") + theme_bw()
+
+```
+
+I think that a badwith of 5 works the best. It captures the shape of the data without showing unnecessary detail or overly rounding off edges (as seen with bw = 10). This is assuming that with a dataset this large the small differences are unimportant. If the small differences at each number mattered, then I would go with the 0.2. Color seems entirely aesthetic, but I like the deeppink4 the best. 
+
 
 ```{r eval=FALSE, include=FALSE}
 library(stringr)
@@ -137,10 +173,7 @@ d <- tibble(
 
 text
 
-view(d)
-```
-
-```{r}
+#view(d)
 
 # eugene_df <- tibble(
 #   paragraph = seq_along(d$text),
@@ -151,19 +184,38 @@ view(d)
 # 
 # eugene_df
 
-names(d)
+```
+
+```{r}
+
 dat <- d %>% 
   select(user_id, text)
 
 dat <- dat %>% 
 unnest_tokens(word, text)
 
-dat
 ```
 
 ```{r}
 #dat_reduced <- dat[!dat$text %in% stop_words,]
 
+dat %>% 
+anti_join(stop_words) %>% 
+filter(word != "t.co",word !="https",word != "http",word != "rt", word !="rstats") %>% 
+count(word, sort = TRUE) %>% 
+  mutate(word = reorder(word, n)) %>% # make y-axis ordered by n
+  slice(1:15) %>% # select only the first 15 rows
+  ggplot(aes(n, word)) +
+  theme_minimal() +
+    geom_col(fill = "cornflowerblue")
+
+
+```
+
+
+4. Style the plot so it (mostly) matches the below. It does not need to be exact, but it should be close.
+
+```{r, echo=TRUE,eval=TRUE, message=FALSE, warning=FALSE}
 
 dat %>% 
 anti_join(stop_words) %>% 
@@ -174,26 +226,7 @@ count(word, sort = TRUE) %>%
   ggplot(aes(n, word)) +
   theme_minimal() +
     geom_col(fill = "cornflowerblue")+ theme(panel.grid.major.x = element_line(color = "grey",size = 0.25, linetype = 1), panel.grid = element_blank()) + labs( x = "Count", y = "Word", Title = "Word frequencies in posts", subtitle = "Top 15 wordss displayed", caption = "Data from Mike Kearny, distributed from #tidytuesday")
+
                                           
-  
-  
-  
-  #theme(panel.grid.major = element_line(color = "black",
-                                        # size = 0.5,
-                                        # linetype = 1)) 
-```
-
-
-
-```{r,echo=TRUE,eval=TRUE}
-
-```
-
-
-
-4. Style the plot so it (mostly) matches the below. It does not need to be exact, but it should be close.
-
-```{r, echo=TRUE,eval=TRUE}
-
 ```
 
