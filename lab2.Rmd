@@ -1,0 +1,312 @@
+---
+title: "Lab 2"
+author: "Tian Walker"
+date: "2023-02-06"
+output:
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message = FALSE,
+                      warning = FALSE)
+
+options(scipen = 999)
+```
+
+
+```{r}
+library(here)
+library(rio)
+library(tidyverse)
+library(colorblindr)
+library(janitor)
+#install.packages("hrbrthemes")
+library(hrbrthemes)
+library(viridis)
+#install.packages("gghighlight")
+library(gghighlight)
+```
+
+The purpose of this lab is to use color to your advantage. You will be asked to use a variety of color palettes, and use color for its three main purposes: (a) distinguish groups from each other, (b) represent data values, and (c) highlight particular data points.
+
+## Data
+
+We’ll be working with the honey production data from #tidytuesday. The [#tidytuesday repo](https://github.com/rfordatascience/tidytuesday/tree/master/data/2018/2018-05-21) contains the full data, but we’ll work with just the cleaned up version, using the **honeyproduction.csv** file, which is posted on the website.
+
+The data is in under Dataset tab of Week 4 module on Canvas.
+
+You can import the dataset using the code below.
+
+```{r, echo=T,eval=T}
+#d <- read.csv("./honeyproduction.csv",header=TRUE)
+
+d <- import(here("data", "honeyproduction.csv"))
+```
+
+1. Visualize the total production of honey (**totalprod**) across years (**year**) by state (**state**). Use color to highlight the west coast (Washington, Oregon, and California) with a different color used for each west coast state.
+  + **Hint 1**: I'm not asking for a specific kind of plot, just one that does the preceding. But if you're trying to visualize change over time, a bar chart is likely not going to be the best choice.
+  + **Hint 2**: To get each state to be a different color you should either map state to color (for your layer that adds the west coast colors) or use the [gghighlight](https://yutannihilation.github.io/gghighlight/index.html) package.
+
+
+```{r warning=FALSE}
+
+d_f <- d %>% 
+  mutate(region = ifelse(state == "CA"| state == "OR"|state == "WA", "wc", "other"))
+
+d_f <- d %>%
+mutate(region = case_when(
+    state == "CA" ~ 1,
+    state == "OR" ~ 2,
+    state == "WA" ~ 3,
+    state != "CA" ~ 4, 
+    state != "OR" ~ 4, 
+    state != "WA" ~ 4))
+
+d_f$region <- as.factor(d_f$region)
+
+plot1 <- d_f %>% 
+  ggplot(aes(year, totalprod)) + 
+  geom_point(aes(color = region)) + 
+  geom_smooth(aes(color = region),se = FALSE) + 
+  scale_color_brewer(type = "div", palette = 3) + 
+  facet_wrap(~state) +
+  theme_dark() +
+  guides(color="none")
+  
+  
+plot1
+ 
+
+#scale_color_manual(c("black","deeppink4"))
+#this didn't work because it is missing "values ="
+
+# d %>% 
+#   ggplot(aes(year, totalprod)) + geom_col(aes(color = state)) 
+# 
+# d %>% 
+#   ggplot(aes(year, totalprod)) + geom_boxplot(aes(color = state)) 
+```
+
+
+2. Reproduce the plot according three different kinds of color blindness using the `cvd_grid` package from the `colorblindr` package.
+
+```{r}
+cvd_grid (plot1 )
+```
+
+
+3. Reproduce the plot using a color blind safe palette of your choice. 
+
+```{r}
+safe_colorblind_palette <- c("#88CCEE", "#CC6677", "#DDCC77", "#117733", "#332288", "#AA4499", "#44AA99", "#999933", "#882255", "#661100", "#6699CC", "#888888")
+scales::show_col(safe_colorblind_palette)
+```
+
+
+```{r}
+my_colors <- c('#332288','#661100', '#AA4499', '#F1F1F1')
+
+
+#F79CD4
+#F3E1EB
+#4dac26
+#plot1 + scale_color_manual (values = my_colors)
+
+d_f %>% 
+  ggplot(aes(year, totalprod)) + geom_point(aes(color = region)) + geom_smooth(aes(color = region),se = FALSE) + scale_color_manual(values = my_colors)+ facet_wrap(~state) + theme_dark() 
+
+```
+
+
+4. Download the file **'us census bureau regions and divisions.csv'** from the course website denoting the region and division of each state. 
+  + Join the file with your honey file. 
+  + Produce a bar plot displaying the average honey for each state (collapsing across years). 
+  + Use color to highlight the region of the country the state is from. 
+  + Note patterns you notice. 
+
+The plot should look like similar to the following plot (see the pdf).
+
+```{r}
+d2 <- import(here("data", "us_census_bureau_regions and_divisions.csv"))
+
+d2 <- clean_names(d2)
+
+d$state_code = d$state
+
+
+new_d <- inner_join(d,d2, by = "state_code")
+new_d <- clean_names(new_d)
+```
+
+
+```{r}
+dat <- new_d %>% 
+  group_by(state_y) %>% 
+  summarize(mean_prod = mean(totalprod, na.rm = T), year, region)
+
+p <- dat %>% 
+  ggplot(aes(x = reorder(state_y, mean_prod), y = mean_prod))+ 
+         geom_bar(stat = "identity", aes(fill = region)) +   
+         coord_flip() +
+         labs(x = "", y = "Average Honey Production (lbs)") +  
+  scale_fill_discrete_sequential(palette = "Sunset", rev = FALSE) 
+  
+p
+#cvd_grid(p)
+  
+#scale_fill_viridis(discrete= TRUE)
+
+
+```
+
+
+5. Create a heatmap displaying the average honey production across years by *region* (averaging across states within region). The plot should look like similar to the following plot (see the pdf).
+
+
+```{r eval=FALSE, include=FALSE}
+
+  
+hm <- new_d %>% 
+  select(region, year, totalprod) 
+
+hm <- as.matrix(hm)
+
+
+heatmap(hm)
+
+ggplot(new_d, aes(year, region, fill= totalprod)) + 
+  geom_tile(aes(state_code)) + scale_fill_viridis(discrete= FALSE) +
+  theme_ipsum()
+
+
+ggplot(new_d, aes(year, region, fill= totalprod)) + 
+  geom_tile(aes(state_code)) + scale_fill_viridis(discrete= FALSE)
+```
+```{r}
+heatmap <- new_d %>% 
+  group_by(year, region) %>% 
+  summarise(reg_av = mean(totalprod))
+
+  heatmap %>% 
+  ggplot(aes(year, y = reorder(region, reg_av))) + 
+  geom_tile(aes(fill = reg_av), color = "grey", size = .25) + 
+  labs(x = "Year", y = "Region") +
+  theme(legend.position='top', 
+        legend.justification='left',
+        legend.key.size = unit(0.75, 'cm'),
+        legend.key.height = unit(.5,"cm"),
+        panel.background = element_blank()) +
+  scale_fill_continuous_sequential(palette = "Viridis", rev = FALSE)
+
+#Magenta
+#Plasma
+#SunsetDark
+
+#cvd_grid(heatmap)
+```
+
+6. Create at least one more plot of your choosing using color to distinguish,
+represent data values, or highlight. If you are interested in producing maps, I
+suggest grabbing a simple features data frame of the US using the Albers projection
+by doing the following:
+
+```{r eval = TRUE}
+#remotes::install_github("hrbrmstr/albersusa")
+library(albersusa)
+us <- usa_sf()
+
+atlas <- import(here("data", "DiabetesAtlasData.csv" ))
+atlas <- clean_names(atlas)
+
+atlas2 <- import(here("data", "DiabetesAtlasData2010.csv" ))
+atlas2 <- clean_names(atlas2)
+
+#atlas_b <- rbind(atlas, atlas2)
+#atlas_b
+view(atlas)
+
+atlas.d <- atlas %>% 
+  group_by(state) %>% 
+  summarize(ddp_mean = mean(diagnosed_diabetes_percentage, na.rm = TRUE), county)
+
+
+
+atlas.d2 <- atlas2 %>% 
+  group_by(state) %>% 
+  summarize(ddp_mean = mean(diagnosed_diabetes_percentage, na.rm = TRUE), county)
+
+
+us <- us %>% 
+  rename (state = name)
+
+us_at <- left_join(us, atlas.d)
+
+us_at2 <- left_join(us, atlas.d2)
+
+```
+
+You can then join your honey data with this dataset. We'll talk about geographic
+data more later in the course, but it is pretty easy to work with. For example,
+you could use the data frame above to create a map of the US with:
+
+```{r}
+
+us_at_sub <- us_at %>% 
+  select("iso_3166_2"  = "state", county, ddp_mean)
+
+us_at_sub2 <- us_at2 %>% 
+  select("iso_3166_2"  = "state", county, ddp_mean)
+```
+
+
+```{r eval = TRUE}
+#aes(fill = ddp_mean)
+ 
+b <- ggplot(us_at_sub) +
+  geom_sf(aes(fill = ddp_mean)) + 
+colorspace::scale_fill_continuous_sequential(
+  palette = "Sunset",
+  name = "Percent Diagnosis" )+
+theme_minimal() +
+theme(legend.direction = "horizontal",
+      legend.position = "bottom",
+      legend.key.size = unit(2, 'cm'),
+      legend.key.height = unit(.5,"cm"),
+      axis.text.x = element_text(size = 5))+
+  labs( title =  " US Diabetes Diagnosis Percentage in 2018")
+
+```
+
+```{r}
+a <- ggplot(us_at_sub2) +
+  geom_sf(aes(fill = ddp_mean)) + 
+colorspace::scale_fill_continuous_sequential(
+  palette = "Sunset",
+  name = "Percent Diagnosis" )+
+theme_minimal() +
+theme(legend.direction = "horizontal",
+      legend.position = "none",
+      legend.key.size = unit(2, 'cm'),
+      legend.key.height = unit(.5,"cm"),
+      axis.text.x = element_text(size = 5))+
+  labs( title =  " US Diabetes Diagnosis Percentage in 2010")
+
+```
+
+```{r}
+library(gridExtra)
+ grid.arrange(a,b)
+```
+
+You will likely get a few warnings but they are most likely ignorable. You could also theme it more from here, but if you join it with your
+honey data, you should be able to `fill` and/or `facet` by specific variables.
+
+Note - this is a little trickier than it initially seems because you can "lose"
+states in your map if they don't have any data (there are only 44 states
+represented in your honey dataset). You should still plot all states, but just 
+have them not be filled according to your fill scale if there is no data.
+
+For instance, below is a plot created based on this data for inspiration (see the pdf).
+
+
+

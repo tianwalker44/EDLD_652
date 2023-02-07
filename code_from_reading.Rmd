@@ -1,0 +1,31 @@
+---
+title: "code-reading"
+author: "Tian Walker"
+date: "2023-02-06"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+cowplot::plot_grid(p1, p2, nrow = 2, rel_heights = c(0.75, 0.25), align = "v")
+```
+
+ggbeeswarm
+ggquasisemirandom
+
+data wrapper
+javascript d3 
+react
+
+html
+
+books:
+
+
+alyssa.fowers@washpost.com
+@alyssafowers
+
+alignement (of labels) is important
