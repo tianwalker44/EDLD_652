@@ -1,0 +1,32 @@
+---
+title: "class_notes_wk4"
+format: revealjs
+editor: visual
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished presentation. To learn more about Quarto presentations see <https://quarto.org/docs/presentations/>.
+
+## Bullets
+
+When you click the **Render** button a document will be generated that includes:
+
+-   Content authored with markdown
+-   Output from executable code
+
+## Code
+
+When you click the **Render** button a presentation will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+1 + 1
+```
+
+First question for every plot
+
+What message is this plot trying to give us? What is the intent?
+
+Do you get it in 10-15 seconds?
+
+What do you get from this visualization
