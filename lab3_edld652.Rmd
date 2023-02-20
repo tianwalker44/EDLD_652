@@ -435,4 +435,9 @@ labs(title = "Longer transit systems tend to cost more", subtitle = "United Stat
 
 
 
+```{r eval=FALSE, include=FALSE}
+#cool code I found while searching other things
+p3 + theme(strip.text.x = element_text(colour = "white", face = "bold"))
+
+```
 

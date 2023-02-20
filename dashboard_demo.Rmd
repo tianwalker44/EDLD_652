@@ -1,0 +1,80 @@
+---
+title: "In-class Demo of Dashboard"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: scroll
+    css: styles.css
+    #vs. fill
+    #fill leaves you with a fixed amount of space
+    #theme: spacelab
+    
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(tidyverse)
+#install.packages("plotly")
+library(plotly)
+```
+
+Prelude
+==========
+
+
+Column {data-width=650}
+-----------------------------------------------------------------------
+
+### Chart A
+
+```{r}
+
+```
+
+Column {data-width=350}
+-----------------------------------------------------------------------
+
+
+
+**Row format allows for a tab option. <br> Need to learn more about how text works** 
+
+### Chart B {data-padding=100}
+
+```{r}
+
+#Row {.tabset} will allow you to create tabs
+#equals sign below text will create vertical tabs
+
+```
+--------
+
+
+Explore!
+===========
+
+
+### Chart C
+
+```{r}
+mtcars %>% 
+  ggplot(aes(wt, disp)) + geom_point(aes(color = vs))
+```
+
+# Chart D {.storyboard}
+
+
+
+
+Start Here
+=================================
+
+
+### Chart E
+
+### Chart F
+
+### Chart G
+-------------
+Demo Tab
+========================
+### Chart H
