@@ -1,15 +1,17 @@
 ---
 title: "Lab 4"
 author: "Tian Walker"
-date: "YYYY-MM-DD"
+date: "2023-02-20"
 output:
   pdf_document: default
+  html_document:
+    df_print: paged
 header-includes:
-  - \usepackage{booktabs}
-  - \usepackage{lscape}
-  - \newcommand{\blandscape}{\begin{landscape}}
-  - \newcommand{\elandscape}{\end{landscape}}
-  - \usepackage{float}
+- \usepackage{booktabs}
+- \usepackage{lscape}
+- \newcommand{\blandscape}{\begin{landscape}}
+- \newcommand{\elandscape}{\end{landscape}}
+- \usepackage{float}
 ---
 
 ```{r setup, include=FALSE}
@@ -42,14 +44,141 @@ transit_cost <- import(here("data",'./transit_cost.csv' ))
 
 Use the transit costs data to reproduce the following plot. To do so, you will need to do a small amount of data cleaning, then calculate the means and  standard errors (of the mean) for each country. Please filter to only counties with at least three observations. To use actual country names, rather than abbreviations, join your dataset with the output from the following
 
-```{r eval = FALSE, echo = TRUE}
+```{r  echo = TRUE}
 country_codes <- countrycode::codelist %>% 
   select(country_name = country.name.en, country = ecb)
 ```
 
 ```{r,echo=TRUE,eval=TRUE}
 
+data <- left_join( transit_cost, country_codes)
+
 ```
+
+```{r}
+#psych::describe
+#table(data$currency)
+
+library(libr)
+
+# num = length(which(data$currency == "USD"))
+# num= length(which(data$currency == "AUD"))
+# num= length(which(data$currency == "BD"))
+# num= length(which(data$currency == "NL"))
+ num= length(which(data$currency == "QA"))
+
+
+dat <- data %>% 
+filter(currency != "BD")  |>
+filter(currency != "BGN") |>
+filter(currency !="CZK")  |>
+filter(currency !="DKK")  |>
+filter(currency != "EU")  |>     
+filter(currency != "MXN") |>
+filter(currency != "KRW") |>
+filter(currency != "MYR") |>
+filter(currency != "NIS") |> 
+filter(currency != "NOK") |> 
+filter(currency != "NZD") |> 
+filter(currency != "PKR") |> 
+filter(currency != "RON") |> 
+filter(currency != "SAR") |> 
+filter(currency != "UAH") |>
+filter(currency != "HUF") |>
+filter(currency != "IDR") |>
+filter(currency != "NL")  |>
+filter(currency != "QA") 
+
+#table(dat$currency)
+
+#Thought this was the data cleaning step, but realized it is not
+# df2 <- datastep(data, {
+#          if (is.na(currency))
+#            converted <- cost
+#          else if (currency == "AUD")
+#            converted <- cost / 0.69
+#          else if (currency == "BDT")
+#            converted <- cost /.0094
+#          else if (currency == "BRL")
+#           converted <- cost / 0.019
+#          else if (currency == "CAD")
+#           converted <- cost * 0.74
+#          else if (currency == "CHF")
+#           converted <- cost / 1.08
+#          else if (currency == "CNY")
+#           converted <- cost / 0.15
+#          else if (currency == "EGP")
+#           converted <- cost / 0.033
+#          else if (currency == "GBP")
+#           converted <- cost * 1.20
+#          else if (currency == "INR")
+#           converted <- cost / 0.012
+#          else if (currency == "IRR")
+#           converted <- cost / 1.08
+#          else if (currency == "JPY")
+#           converted <- cost / 1.08
+#          else if (currency == "PHP")
+#           converted <- cost / 1.08
+#          else if (currency == "PLN")
+#           converted <- cost / 1.08
+#          else if (currency == "RUB")
+#           converted <- cost / 1.08
+#          else if (currency == "SEK")
+#           converted <- cost / 1.08
+#          else if (currency == "SGD")
+#           converted <- cost / 1.08
+#          else if (currency == "THB")
+#           converted <- cost / 1.08
+#          else if (currency == "TRY")
+#           converted <- cost / 1.08
+#          else if (currency == "TWD")
+#           converted <- cost / 1.08
+#          else if (currency == "VND")
+#           converted <- cost / 1.08
+#          else if (currency == "USD")
+#           converted <- cost * 1
+#        })
+```
+
+```{r echo=FALSE}
+
+#str(dat$real_cost)
+
+dat$real_cost <- as.numeric(dat$real_cost)
+
+
+dat1 <- dat %>% 
+  group_by(country_name) %>% 
+  summarize(mean_cost = mean(real_cost, na.rm= TRUE), se_cost = sqrt(var(real_cost, na.rm = TRUE) / 
+                                  length(na.omit(real_cost)))) 
+  
+
+dat2 <- dat1[order(dat1$mean_cost),]
+
+
+#dat2 %>% 
+#ggplot(aes(mean_cost, country_name)) + geom_point()
+
+
+dat2 <- dat1 %>% 
+  dplyr::arrange(desc(mean_cost))
+
+dat2 <- dat2 %>% 
+   filter(!is.na(country_name)) 
+
+
+dat2 %>% 
+  filter(country_name != "Kuwait" & country_name != "Qatar") %>% 
+ggplot(aes(reorder(country_name, mean_cost), mean_cost)) + geom_point(color = "dodgerblue4") + coord_flip() + geom_errorbar(aes(ymax = mean_cost + 1.96 *se_cost, 
+                    ymin = mean_cost - 1.96 *se_cost), width=.1) + theme(panel.grid.major.x = element_line(color = "grey",size = 0.25, linetype = 1), panel.grid = element_blank()) +
+  labs( y = "Real Cost (in millions of dollars)", x = "Country", title = "Cost to build transit systems vary across countries", subtitle = "Data provided through #tidytuesday through Transit Costs Project")  
+
+
+
+
+
+```
+
 
 ## Question 2
 
@@ -60,16 +189,16 @@ Assume that the margin of error represents twice the standard error of the perce
 **Source:** [Oregon gun control Measure 114 polls closely](https://www.kgw.com/article/news/crime/gun-violence/measure-114-oregon-poll-results-gun-control-close/283-c342776d-f3b3-4799-ba76-061424bbd62e)
 
 ```{r,echo=TRUE,eval=TRUE}
-mu  <- 3.9 #advantage of bill not passing
-std <- 2.09 # margin of error 4.1 = 1.96*SD,
+mu  <- 46.1 #advantage of bill not passing
+std <- 2.05 # margin of error 4.1 = 1.96*SD,
 
- x <- seq(-5,5,.01)
+ x <- seq(38,55,.01)
 ```
 
-```{r}
+```{r include=FALSE}
  df_norm <- data.frame(x,
-                        y = dnorm(x, mean=mu, sd = ),
-                        type = ifelse(x<=0,'Yellow','Blue'))
+                        y = dnorm(x, mean=mu, sd =std ),
+                        type = ifelse(x<=50,'Fail','Pass'))
   
  
 
@@ -78,7 +207,7 @@ std <- 2.09 # margin of error 4.1 = 1.96*SD,
 ```
 
 
-```{r}
+```{r echo=FALSE}
 df_annot <- data.frame(
     x = c(mu + 0.05, mu + 0.1, mu + 2.3*std, mu - 2.5*std),
     y = c(dnorm(mu, mu, std) + 0.04, ci_y[1] + 0.01, 3*ci_y[1], 3*ci_y[1]),
@@ -89,7 +218,7 @@ df_annot <- data.frame(
   
   ggplot(df_norm, aes(x, y)) +
     geom_area(aes(fill = type)) +
-    geom_vline(xintercept = 0, linetype = 2, color = "gray50") +
+    geom_vline(xintercept = 50, linetype = 2, color = "gray50") +
     geom_line() +
     geom_segment(
       data = data.frame(x = 1),
@@ -102,14 +231,14 @@ df_annot <- data.frame(
     ) +
     geom_segment(
       data = data.frame(x = 1),
-      x = mu, xend = mu, y = 0, yend = dnorm(mu, mu, std) + 0.04,
+      x = mu, xend = mu, y = 50, yend = dnorm(mu, mu, std) + 0.04,
       inherit.aes = FALSE
     ) +
     geom_text(
       data = df_annot,
       aes(x, y, label = label, hjust = hjust, vjust = vjust)) +
     scale_x_continuous(
-      name = "Percentage point advantage for blue",
+      name = "Needed for passing",
       labels = scales::percent_format(accuracy = 0.1, scale = 1)
     ) +
     scale_y_continuous(
@@ -117,24 +246,18 @@ df_annot <- data.frame(
       breaks = NULL,
       expand = c(0, 0),
       limits = c(0, dnorm(mu, mu, std) + 0.045)
-    ) +
+    )+
     scale_fill_manual(
-      values = c(Yellow = "#f8f1a9", Blue = "#b1daf4"),
+      values = c("darkorchid", "pink"),
       guide = "none"
     ) +
     theme_minimal()
   
-  
-    pnorm(0,mu,std,lower.tail = TRUE)
-    pnorm(0,mu,std,lower.tail = FALSE)
-    
-  
-    # The chance of the yellow party winning is 13.3%. 
-    # The chance of the yellow party winning is 87.7%. 
+
 ```
 
 
-```{r}
+```{r include=FALSE}
 ################################################################################
 #
 #  3. Quantile dotplot = Discrete outcome + Continuous Distribution
@@ -143,21 +266,26 @@ df_annot <- data.frame(
 
 # Parameters
     
-mu  <- 1
-std <- 0.9 # margin of error 1.76 = 1.96*SD,
-    
-x <- seq(0.01,.99,.01) # generate a sequence of probabilities
-                       # from 1% to 99% by 1% increments
+mu  <- 46.1 #advantage of bill not passing
+std <- 2.05 # margin of error 4.1 = 1.96*SD,
+
+ x <- seq(.01,.99,.01)
 
 # Quantile data frame based on normal distribution
 
   q_df <- data.frame(x = x,
                      q = qnorm(x, mu, std)) 
   
-  q_df$winner <- ifelse(q_df$q <= 0,"#f8f1a9","#b1daf4")
+  q_df$pass <- ifelse(q_df$q <= 50,"darkorchid","snow")
   
   q_df
 
+  
+  df_norm <- data.frame(x,
+                        y = dnorm(x, mean=mu, sd =std ),
+                        type = ifelse(x<=50,'Fail','Pass'))
+  
+  
 ```
 
 
@@ -165,6 +293,63 @@ x <- seq(0.01,.99,.01) # generate a sequence of probabilities
 
 
 
+```{r echo=FALSE}
+ # ggplot(q_df, aes(q)) +
+ #    geom_dotplot()+
+ #    theme_minimal()
+ #  
+ #  # Step 2
+ #  
+ #  ggplot(q_df, aes(q)) +
+ #    geom_dotplot(aes(fill=pass))+
+ #    theme_minimal()
+ #  
+ #  # Step 3
+ #  
+ #  ggplot(q_df, aes(q)) +
+ #    geom_dotplot(aes(fill=pass),binwidth=0.25)+
+ #    theme_minimal()
+  
+      # choice of binwidth is a trial/error process
+  
+  # Step 4
+  
+  # ggplot(q_df, aes(q)) +
+  #   geom_dotplot(aes(fill=pass),binwidth=0.21)+
+  #   theme_minimal()+
+  #   geom_vline(xintercept = 50, 
+  #              color = "gray", 
+  #              linetype = "dashed", 
+  #              size = 1)
+  # 
+  # Step 5
+  
+  # ggplot(q_df, aes(q)) +
+  #   geom_dotplot(aes(fill=pass),binwidth=0.21)+
+  #   theme_minimal()+
+  #   geom_vline(xintercept = 50, 
+  #              color = "gray", 
+  #              linetype = "dashed", 
+  #              size = 1)+
+  #   scale_fill_identity(guide='none')
+  # 
+  
+  # Step 6
+  
+  ggplot(q_df, aes(q)) +
+    geom_dotplot(aes(fill=pass),binwidth=0.5)+
+    theme_minimal()+
+    geom_vline(xintercept = 50, 
+               color = "gray", 
+               linetype = "dashed", 
+               size = 1)+
+    scale_fill_identity(guide='none')+
+    scale_y_continuous(name = "", 
+                       breaks = NULL) +
+    labs(x = "Liklihood it will pass, purple 'no', white 'yes'", caption = "data from Oregon gun control Measure 114 polls closely", title = "Is it Possible for Measure 114 to Pass?")
+  
+  
+```
 
 
 

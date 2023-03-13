@@ -48,7 +48,7 @@ d %>%
   view()
 
 d %>% 
-  ggplot(aes(x = display_text_width))+ geom_histogram() + theme_bw()
+  ggplot(aes(x = display_text_width))+ geom_histogram() +           theme_bw()
          
 
 # p <- ggplot(d, aes(x=display_text_width)) + 
@@ -216,6 +216,8 @@ count(word, sort = TRUE) %>%
 4. Style the plot so it (mostly) matches the below. It does not need to be exact, but it should be close.
 
 ```{r, echo=TRUE,eval=TRUE, message=FALSE, warning=FALSE}
+library(tidytext)
+
 
 dat %>% 
 anti_join(stop_words) %>% 

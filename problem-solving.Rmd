@@ -1,0 +1,83 @@
+---
+title: "code_Tian"
+author: "Tian Walker"
+date: "2023-03-10"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+#install.packages("plotly")
+library(plotly)
+library(rio)
+library(here)
+```
+
+```{r}
+data <- import(here("reg_data.csv"))
+dat <- import(here("pre_reg_data.csv"))
+```
+
+Hello Cengiz! 
+
+My goal is to move this graph into plotly and have it show which resources people used when you hover on the dot. So the x axis tells you how many resources a person used and then when you hover you find out which resources. 
+
+The data is transformed from the name of the resource to a 0 or 1 in order to create the variable that shows the total number of resources used. 
+The dataset called "dat" above has the data in its raw form. I have recreated the steps to transform the variable and then sum the rows below. 
+I am thinking that I would need to duplicate all of the variables before I transform them so that the data retains them in their raw form as well. 
+
+Then, the real issue is whether or not plotly will show a different variable when you hover than what is on the x or y axis. 
+
+Thank you for your time! 
+
+-Tian
+
+```{r}
+data %>% 
+  ggplot(aes(res_sum, des_score)) + 
+  geom_point(aes(size = chai_means),color = "purple3") +           scale_color_manual(values = my_colors)+ 
+  theme_classic() + 
+  theme(axis.line = element_line(colour = "darkmagenta", 
+       linewidth = 2, linetype = "solid")) +  scale_fill_manual(values = my_colors) + 
+  xlim("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13") +
+  labs(x = "Number of Resources Used", y = "Diabetes Empowerment", size = "Health Engagement Score")
+```
+
+```{r}
+
+dat %>% 
+  select(starts_with("resource"))
+
+```
+```{r}
+dat %>% 
+   mutate(
+    across(
+      # ^means begins with. 0-9 are the possible numbers and {1,2} means it 
+      # could be one or two digits
+      matches("^resources_[0-9]{1,2}$"), 
+      # need to ask Sara about what the period inside parens indicates
+      ~ ifelse(is.na(.), 0, 1)))
+
+```
+```{r}
+data$res_sum <- data %>% 
+  select(resources_1:resources_21)%>%
+  rowSums(na.rm=TRUE)
+```
+
+```{r}
+data %>% 
+  ggplot(aes(res_sum, des_score)) + 
+  geom_point(aes(size = chai_means),color = "purple3") +           scale_color_manual(values = my_colors)+ 
+  theme_classic() + 
+  theme(axis.line = element_line(colour = "darkmagenta", 
+       linewidth = 2, linetype = "solid")) +  scale_fill_manual(values = my_colors) + 
+  xlim("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13") +
+  labs(x = "Number of Resources Used", y = "Diabetes Empowerment", size = "Health Engagement Score")
+```
+
